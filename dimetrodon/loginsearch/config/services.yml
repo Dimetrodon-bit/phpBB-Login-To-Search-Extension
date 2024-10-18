@@ -1,8 +1,8 @@
 services:
+    _defaults:
+        autowire: true
+
     dimetrodon.loginsearch.listener:
         class: dimetrodon\loginsearch\event\main_listener
-        arguments:
-            - '@language'
-            - '@auth'
         tags:
             - { name: event.listener }
