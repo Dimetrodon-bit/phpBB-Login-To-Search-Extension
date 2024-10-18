@@ -10,80 +10,62 @@
 
 namespace dimetrodon\loginsearch\event;
 
-/**
- * @ignore
- */
+use phpbb\auth\auth;
+use phpbb\language\language;
+use phpbb\template\twig\twig;
+use phpbb\user;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-/**
- * Login To Search Event listener.
- */
 class main_listener implements EventSubscriberInterface
 {
-//	public function __construct(auth $auth)
-//	{
-//		$this->auth = $auth;
-//	}
-	public static function getSubscribedEvents()
+
+	public function __construct(
+		private auth $auth,
+		private language $language,
+		private twig $twig,
+		private user $user
+	)
+	{
+	}
+
+	public static function getSubscribedEvents(): array
 	{
 		return [
-			'core.user_setup'							=> 'load_language_on_setup',
-			'core.search_auth_checks_override'			=> 'search_auth_checks_override_vars',
+			'core.user_setup'				   => 'load_language',
+			'core.search_auth_checks_override' => 'search_auth',
 		];
 	}
-
-	/* @var \phpbb\language\language */
-	protected $language;
-
-	/**
-	 * Constructor
-	 *
-	 * @param \phpbb\language\language	$language	Language object
-	 */
-	public function __construct(\phpbb\language\language $language)
-	{
-		$this->language = $language;
-	}
-
 
 	/**
 	 * Load common language files during user setup
-	 *
-	 * @param \phpbb\event\data	$event	Event object
 	 */
-	public function load_language_on_setup($event)
+	public function load_language(): void
 	{
-		$lang_set_ext = $event['lang_set_ext'];
-		$lang_set_ext[] = [
-			'ext_name' => 'dimetrodon/loginsearch',
-			'lang_set' => 'common',
-		];
-		$event['lang_set_ext'] = $lang_set_ext;
+		$this->language->add_lang('common', 'dimetrodon/loginsearch');
 	}
 
 	/**
-	 * A sample PHP event
-	 * Modifies the names of the forums on index
+	 * Override search auth setting
 	 *
-	 * @param \phpbb\event\data	$event	Event object
+	 * @param \phpbb\event\data $event Event object
 	 */
-	public function search_auth_checks_override_vars($event)
+	public function search_auth($event): void
 	{
-		$auth_check_override = true;
-		
-		// Is user able to search? Has search been disabled?
-		if (!$auth->acl_get('u_search') || !$auth->acl_getf_global('f_search') || !$config['load_search'])
+		// Is user able to search?
+		if (!$this->auth->acl_get('u_search'))
 		{
-			// Is the user logged in but unable to search? If so, they will get an error message.	 
-			if ($user->data['user_id'] != ANONYMOUS)
-			{			
-			$template->assign_var('S_NO_SEARCH', true);
-			trigger_error('NO_SEARCH');
+			// Is the user logged in but unable to search? If so, they will get an error message.
+			if ($this->user->data['user_id'] != ANONYMOUS)
+			{
+				$this->twig->assign_var('S_NO_SEARCH', true);
+				trigger_error('NO_SEARCH');
 			}
 
-		// If the user is a guest and cannot search, they will recieve a login page.                      
-		login_box('', ((isset($user->lang['LOGIN_EXPLAIN_' . strtoupper($mode)])) ? $user->lang['LOGIN_EXPLAIN_' . strtoupper($mode)] : $user->lang['LOGIN_EXPLAIN_SEARCH']));
+			// If the user is a guest and cannot search, they will recieve a login page.
+			login_box('', $this->language->lang('LOGIN_EXPLAIN_SEARCH'));
 		}
 
+		// Override auth setting
+		$event['search_auth_check_override'] = true;
 	}
 }
