@@ -35,8 +35,6 @@ if (empty($lang) || !is_array($lang))
 //
 
 $lang = array_merge($lang, [
-
-	'LOGINSEARCH_EVENT'		=> ' :: Loginsearch Event :: ',
-	'LOGIN_EXPLAIN_SEARCH'	=> 'In order to search the board you have to be registered and logged in.',
+	'LOGIN_EXPLAIN_SEARCH' => 'In order to search the board you have to be registered and logged in.',
 
 ]);
