@@ -31,7 +31,7 @@ class main_listener implements EventSubscriberInterface
 	public static function getSubscribedEvents(): array
 	{
 		return [
-			'core.search_auth_checks_override' => 'search_auth',
+			'core.search_auth_check_override' => 'search_auth',
 		];
 	}
 
