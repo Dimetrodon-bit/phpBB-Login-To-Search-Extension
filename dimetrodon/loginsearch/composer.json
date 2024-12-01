@@ -21,7 +21,7 @@
     "extra": {
         "display-name": "Login To Search",
         "soft-require": {
-            "phpbb/phpbb": ">=3.3.12"
+            "phpbb/phpbb": ">=3.3.14"
         }
     }
 }
