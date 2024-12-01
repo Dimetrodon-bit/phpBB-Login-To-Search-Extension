@@ -57,8 +57,5 @@ class main_listener implements EventSubscriberInterface
 			// If the user is a guest and cannot search, they will recieve a login page.
 			login_box('', $this->language->lang('LOGIN_EXPLAIN_SEARCH'));
 		}
-
-		// Override auth setting
-		$event['search_auth_check_override'] = true;
 	}
 }
